@@ -9,20 +9,20 @@ var url = require('./urls');
 var app = koa();
 
 app.context.render = render({
-	root: path.join(__dirname, 'templates'),
-	autoescape: true,
-	cache: 'memory',
-	ext: 'html'
+    root: path.join(__dirname, 'templates'),
+    autoescape: true,
+    cache: 'memory',
+    ext: 'html'
 });
 
 mongoose.connect('mongodb://localhost:27017/ck');
 mongoose.connection
-  .once("open", function() {
-    console.log('connected to MongoDB');
-  });
+    .once("open", function() {
+        console.log('connected to MongoDB');
+    });
 
 var movieSchema = new mongoose.Schema({
-	email: String
+    email: String
 });
 
 var Image = mongoose.model('Image', movieSchema);
@@ -44,12 +44,12 @@ var Image = mongoose.model('Image', movieSchema);
 
 var router = url();
 app
-	.use(router.routes())
-	.use(router.allowedMethods());
+    .use(router.routes())
+    .use(router.allowedMethods());
 
 app
-	.use(serve(__dirname + '/assets'))
-	.use(serve(__dirname + '/bower_components'));
+    .use(serve(__dirname + '/assets'))
+    .use(serve(__dirname + '/bower_components'));
 
 app.listen(3002);
 console.log('Listening to Port: 3002');
