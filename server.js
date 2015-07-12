@@ -5,6 +5,7 @@ var render = require('koa-swig');
 var path = require('path');
 var mongoose = require('mongoose');
 var url = require('./urls');
+var thisApp = require('./applications');
 
 var app = koa();
 
@@ -21,28 +22,17 @@ mongoose.connection
         console.log('connected to MongoDB');
     });
 
-var movieSchema = new mongoose.Schema({
-    email: String
+
+app.use(function*(next) {
+
+    this.models = thisApp.models;
+    this.controllers = thisApp.controllers;
+
+    yield * next;
 });
 
-var Image = mongoose.model('Image', movieSchema);
 
-// router
-// 	.get('/', function * (next) {
-// 		var res = yield Image.find({});
-// 		console.log(res);
-// 		yield this.render("index.html");
-// 	})
-// 	.get('/browse', function * (next) {
-// 		yield this.render("browse.html");
-// 	})
-// 	.get('/upload', function * (next) {
-// 		yield this.render("upload.html");
-// 	});
-// 	console.log("URL: ", url);
-// 	console.log("ROUTER: ", router);
-
-var router = url();
+var router = url(thisApp.controllers);
 app
     .use(router.routes())
     .use(router.allowedMethods());
