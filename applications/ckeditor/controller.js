@@ -11,10 +11,6 @@ module.exports = {
 
     browse: function*(next) {
         yield this.render("browse.html");
-    },
-
-    upload: function*(next) {
-        yield this.render("upload.html");
     }
 
 };
