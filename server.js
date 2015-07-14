@@ -17,7 +17,7 @@ app.use(bodyParser());
 app.use(multer({
   dest: __dirname + "/uploads/images",
   rename: function(fieldname, filename) {
-    return filename + new Date();
+    return filename;
   }
 }));
 
@@ -51,7 +51,8 @@ app
 
 app
   .use(serve(__dirname + '/assets'))
-  .use(serve(__dirname + '/bower_components'));
+  .use(serve(__dirname + '/bower_components'))
+  .use(serve(__dirname + '/uploads'));
 
 app.listen(3002);
 console.log('Listening to Port: 3002');

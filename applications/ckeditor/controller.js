@@ -23,15 +23,27 @@ module.exports = {
 
     savData.originalname = data.originalname;
     savData.name = data.name;
-    savData.path = data.path;
+    savData.path = "/images/" + data.name;
 
     console.log(savData);
 
-    var res = yield this.models.ckeditor.create(savData);
+    /* Saves Image Path into DB */
+    yield this.models.ckeditor.create(savData);
+
+    /* Get Image Path */
+    var image_path = savData.path;
+
+    this.body = image_path;
+  },
+
+  get: function * (next) {
+
+    var res = yield this.models.ckeditor.find();
 
     console.log(res);
 
-    this.body = this.req.files;
+    this.body = res;
+
   }
 
 };

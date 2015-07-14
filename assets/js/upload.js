@@ -1,128 +1,81 @@
-$('#filePath').on('change', function(e) {
-  var data = new FormData();
-  $.each($(this)[0].files, function(i, file) {
-    data.append('file_' + i, file);
+require(['jquery', 'bootstrap', 'nicescroll'], function($) {
+  $('.upload-btn').on('click', function() {
+    $('#filePath').trigger('click');
   });
 
-  fileUpload(data);
+  $('#filePath').on('change', function(e) {
+    var data = new FormData();
+    $.each($(this)[0].files, function(i, file) {
+      data.append('file_' + i, file);
+    });
 
-});
+    fileUpload(data);
 
-function fileUpload(data) {
+  });
 
+  function fileUpload(data) {
+
+    $.ajax({
+      url: '/upload',
+      method: 'POST',
+      data: data,
+      contentType: false,
+      processData: false
+    })
+      .done(function(data) {
+        console.log("Data Loaded: ", data);
+        addPath(data);
+      });
+
+  }
+
+  /* Show All Uploaded Images */
   $.ajax({
-    url: '/upload',
-    method: 'POST',
-    data: data,
-    contentType: false,
-    processData: false
+    url: '/get-images',
+    method: 'GET'
   })
     .done(function(data) {
-      console.log("Data Loaded: ", data);
-    })
+      console.log(data);
+      for (var i = 0; i < data.length; i++) {
+        var imgElement = '<li><img src="' + data[i].path + '"><div class="img-info"><span class="img-name">' + data[i].name + '</span><span class="img-button" img-path="' + data[i].path + '">Use</span></div></li>';
+        $('.displayImages ul').append(imgElement);
+      }
+    });
 
-}
+  $(document).on('click', '.displayImages .img-button', function() {
+    addPath($(this).attr('img-path'));
+  });
 
-// $('#filePath').on('change', function(e) {
+  function addPath(path) {
+    console.log(path)
 
-//   // var filePath = URL.createObjectURL(e.target.files[0]);
+    if (path) {
+      // Helper function to get parameters from the query string.
+      function getUrlParam(paramName) {
+        var reParam = new RegExp('(?:[\?&]|&amp;)' + paramName + '=([^&]+)', 'i');
+        var match = window.location.search.match(reParam);
 
-//   // addPath(filePath);
+        return (match && match.length > 1) ? match[1] : '';
+      }
 
-//   // if (filePath == null) {
-//   //   filePath = '';
-//   // }
+      var funcNum = getUrlParam('CKEditorFuncNum');
 
-//   // var imgElement = '<img src="' + filePath + '" />';
-//   // $('.imgPreview').html(imgElement);
+      try {
+        window.opener.CKEDITOR.tools.callFunction(funcNum, path);
 
-//   if ($('.imgPreview').html() != '') {
-//     $('.displayImages ul li').removeClass('select');
-//   }
+        $('.errMessage').html('');
 
-//   var data = new FormData();
-//   jQuery.each(jQuery(this)[0].files, function(i, file) {
-//     data.append('file-' + i, file);
-//   });
+        window.close();
 
+      } catch (err) {
+        if (err) {
+          $('.errMessage').html('<div class="alert alert-danger" role="alert">Please Open Image Upload</div>');
+        }
+      }
+    }
+  }
 
-//   $.ajax({
-//     url: '/upload',
-//     method: 'POST',
-//     data: data,
-//     contentType: false,
-//     processData: false
-//   })
-//     .done(function(data) {
-//       console.log("Data Loaded: ", data);
-//     })
-
-// });
-
-// $(document).on('click', '.displayImages ul li img', function(e) {
-
-//   $('.imgPreview img').remove();
-
-//   addPath(e.target.src);
-
-//   if ($(this).parent().siblings().hasClass('select')) {
-//     $(this).parent().siblings().removeClass('select');
-//   }
-//   $(this).parent().addClass('select');
-
-//   $.post("/upload",
-//     e.target.src
-//   )
-//     .done(function(data) {
-//       console.log("Data Loaded: " + data);
-//     });
-
-// });
-
-// function addPath(path) {
-//   console.log(path)
-
-//   if (path) {
-//     // Helper function to get parameters from the query string.
-//     function getUrlParam(paramName) {
-//       var reParam = new RegExp('(?:[\?&]|&amp;)' + paramName + '=([^&]+)', 'i');
-//       var match = window.location.search.match(reParam);
-
-//       return (match && match.length > 1) ? match[1] : '';
-//     }
-
-//     var funcNum = getUrlParam('CKEditorFuncNum');
-
-//     try {
-//       window.opener.CKEDITOR.tools.callFunction(funcNum, path);
-
-//       $('.errMessage').html('');
-
-//     } catch (err) {
-//       if (err) {
-//         $('.errMessage').html('<div class="alert alert-danger" role="alert">Please Open Image Upload</div>');
-//       }
-//     }
-//   }
-// }
-
-
-// /* Get Temporary Image from Instagram */
-// $(document).ready(function() {
-//   var url = 'https://api.instagram.com/v1/users/1907003550/media/recent/?access_token=1907003550.cf0499d.e627e909923f4041be763da0be014336';
-
-//   $.ajax({
-//     method: 'GET',
-//     url: url,
-//     crossDomain: true,
-//     dataType: 'jsonp',
-//     success: function(data) {
-//       var reqData = data.data;
-
-//       for (var i = 0; i < reqData.length; i++) {
-//         var imgElement = '<li><img src="' + reqData[i].images.standard_resolution.url + '"></li>'
-//         $('.displayImages ul').append(imgElement);
-//       }
-//     }
-//   });
-// });
+  $(document).ready(function() {
+    $("html").niceScroll();
+  });
+});
